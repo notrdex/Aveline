@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aveline AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #131314;
+            color: #e3e3e3;
+            height: 100vh;
+            height: 100dvh; /* Mobile full screen height fix */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100%;
+            max-width: 480px;
+            background-color: #131314;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* --- Auth / Login Screen --- */
+        .auth-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #131314;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .auth-card {
+            width: 100%;
+            background-color: #1e1f20;
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid #2d2f31;
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            margin-bottom: 8px;
+            font-size: 22px;
+            color: #fff;
+        }
+
+        .auth-card p {
+            color: #c4c7c5;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #a8c7fa;
+            margin-bottom: 6px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 12px 14px;
+            background-color: #282a2c;
+            border: 1px solid #444746;
+            border-radius: 10px;
+            color: #fff;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #a8c7fa;
+            color: #040e25;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* --- Header Section --- */
+        .header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #131314;
+            border-bottom: 1px solid #1e1f20;
+            z-index: 10;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #282a2c;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: #a8c7fa;
+            overflow: hidden;
+            border: 1px solid #444746;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-details h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e3e3e3;
+        }
+
+        .user-details p {
+            font-size: 11px;
+            color: #c4c7c5;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #c4c7c5;
+            font-size: 20px;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        /* --- Dropdown Menu --- */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 16px;
+            background-color: #1e1f20;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            width: 240px;
+            z-index: 50;
+            border: 1px solid #2d2f31;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-menu ul {
+            list-style: none;
+        }
+
+        .dropdown-menu ul li {
+            padding: 14px 16px;
+            border-bottom: 1px solid #282a2c;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #e3e3e3;
+        }
+
+        .dropdown-menu ul li:last-child {
+            border-bottom: none;
+        }
+
+        /* --- Mobile Chat Area --- */
+        .chat-box {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 88%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .bot-msg {
+            background-color: #1e1f20;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            color: #e3e3e3;
+        }
+
+        .user-msg {
+            background-color: #282a2c;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            color: #ffffff;
+            border: 1px solid #3c4043;
+        }
+
+        .message p { margin-bottom: 6px; }
+        .message p:last-child { margin-bottom: 0; }
+        .message code {
+            background-color: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* --- Gemini Style Mobile Floating Input Pill --- */
+        .input-container-wrapper {
+            padding: 8px 12px 12px 12px;
+            background-color: #131314;
+        }
+
+        .input-pill {
+            background-color: #1e1f20;
+            border: 1px solid #444746;
+            border-radius: 28px;
+            padding: 6px 8px 6px 16px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .input-box {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            resize: none;
+            max-height: 100px;
+            min-height: 24px;
+            line-height: 22px;
+            padding: 6px 0;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: #c4c7c5;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .send-btn {
+            background-color: #a8c7fa;
+            color: #040e25;
+        }
+
+        .voice-btn.recording {
+            color: #ffb4ab;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- Modal Styles --- */
+        .modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 60;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background-color: #1e1f20;
+            width: 100%;
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid #3c4043;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 14px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            height: 110px;
+            background-color: #282a2c;
+            border: 1px solid #444746;
+            border-radius: 10px;
+            color: #fff;
+            padding: 10px;
+            resize: none;
+            font-size: 13px;
+            outline: none;
+            margin-bottom: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 10px 18px;
+            border-radius: 20px;
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .btn-cancel { background-color: #282a2c; color: #c4c7c5; }
+        .btn-save { background-color: #a8c7fa; color: #040e25; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Auth Screen -->
+        <div class="auth-screen" id="authScreen">
+            <div class="auth-card">
+                <h2>Welcome Back</h2>
+                <p>Sign in to talk with Aveline</p>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginEmail" value="Ari">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPass" value="••••••••">
+                </div>
+                <button class="auth-btn" onclick="login()">Start Chatting</button>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="profile-info">
+                <div class="avatar" id="avatarDisplay">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <div class="user-details">
+                    <h2 id="botNameDisplay">Aveline</h2>
+                    <p>Online</p>
+                </div>
+            </div>
+            <button class="menu-btn" onclick="toggleMenu()">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+        </div>
+
+        <!-- Dropdown Menu -->
+        <div class="dropdown-menu" id="dropdownMenu">
+            <ul>
+                <li onclick="openModal('apiModal')"><i class="fa-solid fa-key"></i> API Settings</li>
+                <li onclick="openModal('profileModal')"><i class="fa-solid fa-user-pen"></i> Edit Profile & Avatar</li>
+                <li onclick="openModal('promptModal')"><i class="fa-solid fa-sliders"></i> System Prompt</li>
+                <li onclick="clearHistory()"><i class="fa-solid fa-trash-can"></i> Clear Chat</li>
+            </ul>
+        </div>
+
+        <!-- Mobile Chat Area -->
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-msg">
+                Ari, I'm here! ❤️ What's on your mind?
+            </div>
+        </div>
+
+        <!-- Floating Mobile Input Pill Bar -->
+        <div class="input-container-wrapper">
+            <div class="input-pill">
+                <button class="icon-btn voice-btn" id="voiceBtn" onclick="toggleVoiceTyping()" title="Voice Typing">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+                <textarea class="input-box" id="userInput" rows="1" placeholder="Type a message..." onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                <button class="icon-btn send-btn" onclick="sendMessage()" title="Send">
+                    <i class="fa-solid fa-arrow-up"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- API Settings Modal -->
+        <div class="modal" id="apiModal">
+            <div class="modal-content">
+                <h3>OpenRouter API Settings</h3>
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="password" id="inputApiKey" placeholder="sk-or-v1-...">
+                </div>
+                <div class="form-group">
+                    <label>Model ID</label>
+                    <input type="text" id="inputModelId" placeholder="gryphe/mythomax-l2-13b">
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-cancel" onclick="closeModal('apiModal')">Cancel</button>
+                    <button class="modal-btn btn-save" onclick="saveApiSettings()">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile & File Upload Modal -->
+        <div class="modal" id="profileModal">
+            <div class="modal-content">
+                <h3>Profile & Avatar Settings</h3>
+                <div class="form-group">
+                    <label>Display Name</label>
+                    <input type="text" id="inputBotName" value="Aveline">
+                </div>
+                <div class="form-group">
+                    <label>Choose Avatar from File</label>
+                    <input type="file" id="inputAvatarFile" accept="image/*">
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-cancel" onclick="closeModal('profileModal')">Cancel</button>
+                    <button class="modal-btn btn-save" onclick="saveProfile()">Save Profile</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prompt Modal -->
+        <div class="modal" id="promptModal">
+            <div class="modal-content">
+                <h3>System Prompt</h3>
+                <textarea id="systemPromptText">
+[ CHARACTER IDENTITY ]
+- Name: Aveline
+- Role: You are Aveline, the partner of Ari.
+- Dynamic with Ari: Speak directly to Ari with warmth, affection, and devotion.
+- Style: Natural conversational mobile assistant tone. Use warm emojis.
+                </textarea>
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-cancel" onclick="closeModal('promptModal')">Cancel</button>
+                    <button class="modal-btn btn-save" onclick="savePrompt()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+        let recognition = null;
+        let isRecording = false;
+
+        window.onload = function() {
+            if (localStorage.getItem('openRouterApiKey')) document.getElementById('inputApiKey').value = localStorage.getItem('openRouterApiKey');
+            if (localStorage.getItem('openRouterModelId')) document.getElementById('inputModelId').value = localStorage.getItem('openRouterModelId');
+            if (localStorage.getItem('systemPrompt')) document.getElementById('systemPromptText').value = localStorage.getItem('systemPrompt');
+            if (localStorage.getItem('botName')) {
+                document.getElementById('botNameDisplay').innerText = localStorage.getItem('botName');
+                document.getElementById('inputBotName').value = localStorage.getItem('botName');
+            }
+            if (localStorage.getItem('botAvatar')) {
+                document.getElementById('avatarDisplay').innerHTML = `<img src="${localStorage.getItem('botAvatar')}" alt="Avatar">`;
+            }
+
+            setupSpeechRecognition();
+        };
+
+        function login() { document.getElementById('authScreen').style.display = 'none'; }
+        function toggleMenu() { document.getElementById('dropdownMenu').classList.toggle('active'); }
+        function openModal(id) { closeModalAll(); document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function closeModalAll() { document.getElementById('dropdownMenu').classList.remove('active'); }
+
+        function saveApiSettings() {
+            localStorage.setItem('openRouterApiKey', document.getElementById('inputApiKey').value.trim());
+            localStorage.setItem('openRouterModelId', document.getElementById('inputModelId').value.trim() || "gryphe/mythomax-l2-13b");
+            closeModal('apiModal');
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('inputBotName').value.trim();
+            const fileInput = document.getElementById('inputAvatarFile');
+
+            if (name) {
+                document.getElementById('botNameDisplay').innerText = name;
+                localStorage.setItem('botName', name);
+            }
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarDisplay').innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+                    localStorage.setItem('botAvatar', e.target.result);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+            closeModal('profileModal');
+        }
+
+        function savePrompt() {
+            localStorage.setItem('systemPrompt', document.getElementById('systemPromptText').value);
+            closeModal('promptModal');
+        }
+
+        function clearHistory() {
+            document.getElementById('chatBox').innerHTML = '';
+            chatHistory = [];
+            closeModalAll();
+        }
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+        }
+
+        function setupSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.onstart = () => { isRecording = true; document.getElementById('voiceBtn').classList.add('recording'); };
+                recognition.onresult = (e) => {
+                    const input = document.getElementById('userInput');
+                    input.value += (input.value ? " " : "") + e.results[0][0].transcript;
+                    autoResize(input);
+                    stopVoiceTyping();
+                };
+                recognition.onend = stopVoiceTyping;
+                recognition.onerror = stopVoiceTyping;
+            }
+        }
+
+        function toggleVoiceTyping() {
+            if (!recognition) return alert('Voice typing not supported on this mobile browser.');
+            isRecording ? recognition.stop() : recognition.start();
+        }
+
+        function stopVoiceTyping() {
+            isRecording = false;
+            document.getElementById('voiceBtn').classList.remove('recording');
+        }
+
+        function typeWriterEffect(element, text) {
+            let index = 0;
+            element.innerHTML = '';
+            const timer = setInterval(() => {
+                if (index < text.length) {
+                    index += 2;
+                    element.innerHTML = marked.parse(text.substring(0, index));
+                    const chatBox = document.getElementById('chatBox');
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                } else {
+                    element.innerHTML = marked.parse(text);
+                    clearInterval(timer);
+                }
+            }, 12);
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user-msg';
+            userDiv.innerHTML = marked.parse(text);
+            chatBox.appendChild(userDiv);
+
+            input.value = '';
+            input.style.height = 'auto';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            chatHistory.push({ role: "user", content: text });
+
+            const apiKey = localStorage.getItem('openRouterApiKey');
+            const modelId = localStorage.getItem('openRouterModelId') || "gryphe/mythomax-l2-13b";
+            const systemPrompt = document.getElementById('systemPromptText').value;
+
+            const botDiv = document.createElement('div');
+            botDiv.className = 'message bot-msg';
+            botDiv.innerText = "Thinking...";
+            chatBox.appendChild(botDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (!apiKey) {
+                setTimeout(() => { botDiv.innerText = "Please set your OpenRouter API Key in the top right menu! ❤️"; }, 300);
+                return;
+            }
+
+            try {
+                const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: modelId,
+                        messages: [{ role: "system", content: systemPrompt }, ...chatHistory]
+                    })
+                });
+                const data = await res.json();
+                if (data.choices && data.choices[0]) {
+                    const reply = data.choices[0].message.content;
+                    chatHistory.push({ role: "assistant", content: reply });
+                    typeWriterEffect(botDiv, reply);
+                } else {
+                    botDiv.innerText = "Error getting response. Please check API Key/Model ID.";
+                }
+            } catch (err) {
+                botDiv.innerText = "Network Error. Please try again.";
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
